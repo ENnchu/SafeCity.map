@@ -1,0 +1,32 @@
+name: Update Map Daily
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 每天凌晨 12 點自動執行 (UTC 時間)
+  workflow_dispatch:      # 允許你手動點擊執行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run update script
+        run: python update_map.py
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add index.html
+          git commit -m "自動更新地圖" || exit 0
+          git push
